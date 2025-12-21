@@ -1,11 +1,15 @@
 import React from "react";
-import { IssueCard } from "./components/IssueCard";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { IssueListPage } from "./pages/IssueListPage";
+import { IssueDetailPage } from "./pages/IssueDetailPage";
 
 export const App: React.FC = () => {
   return (
-    <div style={{ padding: 32 }}>
-      <h1>问题管理平台</h1>
-      <IssueCard issueId={1} />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<IssueListPage />} />
+        <Route path="/issues/:id" element={<IssueDetailPage />} />
+      </Routes>
+    </Router>
   );
 };

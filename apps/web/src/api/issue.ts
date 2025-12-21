@@ -1,24 +1,17 @@
-import axios from "axios";
-import { IssueAction, IssueStatus } from "@flow/shared";
+import { fetchApi } from "./fetchApi";
+import { Issue } from "../types/issue";
 
-const api = axios.create({ baseURL: "http://localhost:3000" });
+export const getIssue = (id: number): Promise<Issue> => {
+  return fetchApi<Issue>(`http://localhost:3000/issues/${id}`);
+};
 
-export interface Issue {
-  id: number;
-  title: string;
-  status: IssueStatus;
-  actions: IssueAction[];
-}
-
-export async function getIssue(id: number): Promise<Issue> {
-  const res = await api.get(`/issues/${id}`);
-  return res.data;
-}
-
-export async function executeAction(
+export const executeIssueAction = (
   id: number,
-  action: IssueAction
-): Promise<Issue> {
-  const res = await api.post(`/issues/${id}/actions`, { action });
-  return res.data;
-}
+  action: string
+): Promise<Issue> => {
+  return fetchApi<Issue>(`http://localhost:3000/issues/${id}/actions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action }),
+  });
+};
