@@ -1,38 +1,26 @@
-// src/issue/issue.controller.ts
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Body,
-  ParseIntPipe,
-} from '@nestjs/common';
-import { IssueService, Issue } from './issue.service.js';
-import { IssueAction } from '@flow/shared';
+import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import { IssueService } from './issue.service.js';
+import { IssueEntity } from './issue.entity.js';
 
 @Controller('issues')
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
+  // 1️⃣ 列表
   @Get()
-  getAllIssues() {
-    return this.issueService.getAll();
+  getList(): Promise<IssueEntity[]> {
+    return this.issueService.findAll();
   }
 
+  // 2️⃣ 详情
   @Get(':id')
-  getIssue(@Param('id', ParseIntPipe) id: number) {
-    const issue = this.issueService.findOne(id);
-    return {
-      ...issue,
-      actions: this.issueService.getAvailableActions(issue.status),
-    };
+  getDetail(@Param('id') id: string): Promise<IssueEntity> {
+    return this.issueService.findOne(Number(id));
   }
 
-  @Post(':id/actions')
-  executeAction(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('action') action: IssueAction,
-  ) {
-    return this.issueService.executeAction(id, action);
+  // 3️⃣ 创建
+  @Post()
+  create(@Body() body: Partial<IssueEntity>): Promise<IssueEntity> {
+    return this.issueService.create(body);
   }
 }
