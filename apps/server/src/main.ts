@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ✅ 启用 CORS
+  app.useGlobalFilters(new HttpExceptionFilter());
+
   app.enableCors();
 
   await app.listen(3000);

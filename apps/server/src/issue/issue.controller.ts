@@ -1,6 +1,14 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { IssueService } from './issue.service.js';
-import { IssueEntity } from './issue.entity.js';
+import { ApiResponse } from '../common/dto/api-response.dto.js';
+import { CreateIssueDto } from './dto/create-issue.dto.js';
 
 @Controller('issues')
 export class IssueController {
@@ -8,19 +16,22 @@ export class IssueController {
 
   // 1️⃣ 列表
   @Get()
-  getList(): Promise<IssueEntity[]> {
-    return this.issueService.findAll();
+  async findAll() {
+    const list = await this.issueService.findAll();
+    return ApiResponse.success(list);
   }
 
   // 2️⃣ 详情
   @Get(':id')
-  getDetail(@Param('id') id: string): Promise<IssueEntity> {
-    return this.issueService.findOne(Number(id));
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const issue = await this.issueService.findOne(id);
+    return ApiResponse.success(issue);
   }
 
   // 3️⃣ 创建
   @Post()
-  create(@Body() body: Partial<IssueEntity>): Promise<IssueEntity> {
-    return this.issueService.create(body);
+  async create(@Body() dto: CreateIssueDto) {
+    const issue = await this.issueService.create(dto);
+    return ApiResponse.success(issue);
   }
 }
