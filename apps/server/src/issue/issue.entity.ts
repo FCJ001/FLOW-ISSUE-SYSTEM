@@ -5,13 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-export enum IssueStatus {
-  DRAFT = 'DRAFT',
-  SUBMITTED = 'SUBMITTED',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
+import { IssueStatus } from '@flow/shared';
 
 @Entity('issues')
 export class IssueEntity {

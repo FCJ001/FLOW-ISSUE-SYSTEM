@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IssueEntity } from './issue.entity.js';
+import { IssueStatus } from '@flow/shared';
+import { CreateIssueDto } from './dto/create-issue.dto.js';
 
 @Injectable()
 export class IssueService {
@@ -26,8 +28,13 @@ export class IssueService {
     return issue;
   }
 
-  async create(data: Partial<IssueEntity>): Promise<IssueEntity> {
-    const issue = this.issueRepo.create(data);
+  async create(dto: CreateIssueDto): Promise<IssueEntity> {
+    const issue = this.issueRepo.create({
+      title: dto.title,
+      description: dto.description,
+      status: IssueStatus.DRAFT, // 🔒 后端控制
+    });
+
     return this.issueRepo.save(issue);
   }
 }
