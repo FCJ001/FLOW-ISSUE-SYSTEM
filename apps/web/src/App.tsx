@@ -1,15 +1,8 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { IssueListPage } from "./pages/IssueListPage";
-import { IssueDetailPage } from "./pages/IssueDetailPage";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
 
-export const App: React.FC = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<IssueListPage />} />
-        <Route path="/issues/:id" element={<IssueDetailPage />} />
-      </Routes>
-    </Router>
-  );
+const App = () => {
+  return <RouterProvider router={router} />;
 };
+
+export default App;
