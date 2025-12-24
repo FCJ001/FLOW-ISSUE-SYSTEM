@@ -4,15 +4,19 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
 
+    "baseUrl": ".",
+    "paths": {
+      "@flow/ui": ["packages/ui/src/index.ts"],
+      "@flow/ui/*": ["packages/ui/src/*"],
+      "@flow/shared": ["packages/shared/src/index.ts"],
+      "@flow/shared/*": ["packages/shared/src/*"]
+    },
+
     "strict": true,
     "skipLibCheck": true,
-
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-
     "resolveJsonModule": true,
-    "isolatedModules": true,
-
-    "noEmit": true
+    "isolatedModules": true
   }
 }

@@ -8,5 +8,9 @@
       "@/*": ["src/*"]
     }
   },
+  "references": [
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/shared" }
+  ],
   "include": ["src"]
 }
