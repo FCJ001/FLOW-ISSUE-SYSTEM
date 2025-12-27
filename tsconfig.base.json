@@ -1,9 +1,17 @@
 {
   "compilerOptions": {
+    /* 基础 */
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
 
+    /* React / JSX */
+    "jsx": "react-jsx",
+
+    /* 运行环境 */
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    /* 路径别名（monorepo 核心） */
     "baseUrl": ".",
     "paths": {
       "@flow/ui": ["packages/ui/src/index.ts"],
@@ -12,11 +20,18 @@
       "@flow/shared/*": ["packages/shared/src/*"]
     },
 
+    /* 类型系统 */
     "strict": true,
     "skipLibCheck": true,
+    "isolatedModules": true,
+
+    /* 兼容性 */
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "forceConsistentCasingInFileNames": true,
+
+    /* 统一 React 类型入口（很重要） */
+    "types": ["react", "react-dom"]
   }
 }

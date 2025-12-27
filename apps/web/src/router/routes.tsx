@@ -7,7 +7,7 @@ import NotFound from "@/pages/NotFound";
 
 export const routes: RouteObject[] = [
   {
-    path: "/",
+    path: "/web",
     element: <MainLayout />,
     children: [
       {
