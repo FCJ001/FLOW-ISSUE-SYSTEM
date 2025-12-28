@@ -1,7 +1,7 @@
 {
   "name": "flow-issue-system",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "packageManager": "pnpm@10.26.2",
   "type": "module",
   "pnpm": {
@@ -28,13 +28,15 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
+    "standard-version": "^9.5.0",
     "typescript-eslint": "^8.50.1"
   },
   "scripts": {
     "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"{apps,packages}/**/*.{ts,tsx}\" --fix",
     "format": "prettier --write \"{apps,packages}/**/*.{ts,tsx,js,json,md}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "standard-version"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
