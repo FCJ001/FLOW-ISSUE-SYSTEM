@@ -1,14 +1,13 @@
-import { RouteObject } from "react-router-dom";
+import { RouteObject } from 'react-router-dom';
 
-import MainLayout from "@/layouts/MainLayout";
-import Home from "@/pages/Home/index";
-import IssueListPage from "@/pages/issue/IssueListPage";
-import IssueDetailPage from "@/pages/issue/IssueDetailPage";
-import NotFound from "@/pages/NotFound";
-
+import MainLayout from '@/layouts/MainLayout';
+import Home from '@/pages/Home/index';
+import IssueListPage from '@/pages/issue/IssueListPage';
+import IssueDetailPage from '@/pages/issue/IssueDetailPage';
+import NotFound from '@/pages/NotFound';
 export const routes: RouteObject[] = [
   {
-    path: "/web",
+    path: '/web',
     element: <MainLayout />,
     children: [
       {
@@ -16,17 +15,17 @@ export const routes: RouteObject[] = [
         element: <Home />,
       },
       {
-        path: "issues",
+        path: 'issues',
         element: <IssueListPage />,
       },
       {
-        path: "issues/:id",
+        path: 'issues/:id',
         element: <IssueDetailPage />,
       },
     ],
   },
   {
-    path: "*",
+    path: '*',
     element: <NotFound />,
   },
 ];
