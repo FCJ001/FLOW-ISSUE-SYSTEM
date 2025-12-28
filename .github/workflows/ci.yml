@@ -2,35 +2,46 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
 
 jobs:
   quality-check:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 拉代码
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. 安装 pnpm（自动读取 packageManager）
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      # 3. 安装 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
+      # 4. 安装依赖（必须有 pnpm-lock.yaml）
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # 5. ESLint
       - name: Lint
         run: pnpm lint
 
-      - name: Type check
+      # 6. 类型检查（可选）
+      - name: Type Check
         run: pnpm typecheck || echo "skip typecheck"
 
+      # 7. 构建验证
       - name: Build
         run: pnpm build
