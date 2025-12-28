@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Issue } from "../types/issue";
 
 interface IssueListProps {

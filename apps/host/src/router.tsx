@@ -1,5 +1,6 @@
 // host/src/router.tsx
 import { createBrowserRouter } from 'react-router-dom';
+
 import WebAppPage from './pages/WebAppPage';
 
 export const router = createBrowserRouter([

@@ -1,5 +1,6 @@
-import { fetchApi } from "./fetchApi";
 import { Issue } from "../types/issue";
+
+import { fetchApi } from "./fetchApi";
 
 export const getIssue = (id: number): Promise<Issue> => {
   return fetchApi<Issue>(`http://localhost:3000/issues/${id}`);
