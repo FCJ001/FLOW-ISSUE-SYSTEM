@@ -1,7 +1,7 @@
 {
   "name": "flow-issue-system",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "packageManager": "pnpm@10.26.2",
   "type": "module",
   "pnpm": {
@@ -39,8 +39,11 @@
     "release": "standard-version"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
+    "**/*.{ts,tsx,js,jsx}": [
       "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,md,css,scss}": [
       "prettier --write"
     ]
   }
