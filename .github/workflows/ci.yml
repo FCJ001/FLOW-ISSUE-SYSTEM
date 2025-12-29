@@ -40,7 +40,7 @@ jobs:
 
       # 7. 构建验证
       - name: Build
-        run: pnpm build
+        run: pnpm build --mode production
 
       # 8. 上传构建产物（用于查看/下载）
       - name: Upload build artifacts
