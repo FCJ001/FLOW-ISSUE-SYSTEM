@@ -2,12 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import federation from '@originjs/vite-plugin-federation';
 
+const isProd = process.env.NODE_ENV === 'prod';
 export default defineConfig({
   plugins: [
     react(),
     federation({
       remotes: {
-        web: 'http://localhost:5174/FLOW-ISSUE-SYSTEM/assets/remoteEntry.js',
+        web: isProd
+          ? 'https://fcj001.github.io/FLOW-ISSUE-SYSTEM/assets/remoteEntry.js'
+          : 'http://localhost:5174/FLOW-ISSUE-SYSTEM/assets/remoteEntry.js',
       },
       shared: ['react', 'react-dom'],
     }),
