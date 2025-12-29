@@ -1,0 +1,53 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. 安装 pnpm（读取 packageManager）
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      # 3. Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # 4. 安装依赖
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. 构建 host
+      - name: Build host
+        run: pnpm --filter host build
+
+      # 6. 配置 Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 7. 上传产物
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/host/dist
+
+      # 8. 部署
+      - name: Deploy
+        uses: actions/deploy-pages@v4
