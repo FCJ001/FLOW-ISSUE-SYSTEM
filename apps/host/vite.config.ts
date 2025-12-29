@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import federation from '@originjs/vite-plugin-federation';
 
-const isProd = import.meta.env.PROD;
+const isProd = true;
 export default defineConfig({
   plugins: [
     react(),
