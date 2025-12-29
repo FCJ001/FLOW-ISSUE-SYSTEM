@@ -1,53 +1,46 @@
-name: Deploy to GitHub Pages
+name: CI + Deploy
 
 on:
   push:
     branches:
+      - develop
       - main
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉代码
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2. 安装 pnpm（读取 packageManager）
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
 
-      # 3. Node
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      # 4. 安装依赖
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
 
-      # 5. 构建 host
-      - name: Build host
-        run: pnpm --filter host build
-
-      # 6. 配置 Pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      # 7. 上传产物
-      - name: Upload artifact
+      # 上传构建产物
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: apps/host/dist
 
-      # 8. 部署
-      - name: Deploy
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
