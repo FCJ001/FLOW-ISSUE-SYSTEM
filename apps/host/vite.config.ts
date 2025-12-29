@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     federation({
       remotes: {
-        web: 'http://localhost:5174/assets/remoteEntry.js',
+        web: 'http://localhost:5174/FLOW-ISSUE-SYSTEM/assets/remoteEntry.js',
       },
       shared: ['react', 'react-dom'],
     }),
