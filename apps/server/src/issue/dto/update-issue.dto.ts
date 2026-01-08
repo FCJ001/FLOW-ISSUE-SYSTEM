@@ -1,9 +1,10 @@
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-export class CreateIssueDto {
+export class UpdateIssueDto {
+  @IsOptional()
   @IsString()
   @MaxLength(100)
-  title!: string;
+  title?: string;
 
   @IsOptional()
   @IsString()

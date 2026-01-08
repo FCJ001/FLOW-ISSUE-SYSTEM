@@ -10,13 +10,13 @@ import { IssueStatus } from '@flow/shared';
 @Entity('issues')
 export class IssueEntity {
   @PrimaryGeneratedColumn()
-  id!: number; // ❗非空断言
+  id!: number;
 
   @Column({ length: 100 })
   title!: string;
 
   @Column({ type: 'text', nullable: true })
-  description?: string; // 可选字段不用 !
+  description?: string;
 
   @Column({
     type: 'enum',

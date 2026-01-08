@@ -1,22 +1,25 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
   Param,
-  Body,
+  Patch,
+  Post,
   ParseIntPipe,
 } from '@nestjs/common';
 
-import { IssueService } from './issue.service.js';
-import { CreateIssueDto } from './dto/create-issue.dto.js';
+import { IssueService } from './issue.service';
+import { CreateIssueDto } from './dto/create-issue.dto';
+import { UpdateIssueDto } from './dto/update-issue.dto';
+import { ExecuteIssueActionDto } from './dto/issue-action.dto';
 
 @Controller('issues')
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
-  @Get()
-  findAll() {
-    return this.issueService.findAll();
+  @Post()
+  create(@Body() dto: CreateIssueDto) {
+    return this.issueService.create(dto);
   }
 
   @Get(':id')
@@ -24,8 +27,16 @@ export class IssueController {
     return this.issueService.findOne(id);
   }
 
-  @Post()
-  create(@Body() dto: CreateIssueDto) {
-    return this.issueService.create(dto);
+  @Patch(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateIssueDto) {
+    return this.issueService.update(id, dto);
+  }
+
+  @Post(':id/actions')
+  executeAction(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ExecuteIssueActionDto,
+  ) {
+    return this.issueService.executeAction(id, dto.action);
   }
 }
