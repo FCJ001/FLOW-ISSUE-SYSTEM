@@ -6,9 +6,9 @@ import { IssueAction, IssueStatus } from '@flow/shared';
 import { IssueActionLogService } from '../issue-action-log/issue-action-log.service';
 
 import { IssueEntity } from './issue.entity';
-import { getNextIssueStatus } from './issue.state-machine';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
+import { IssueDomain } from './issue.domain.js';
 
 /**
  * 哪些状态允许编辑 Issue 基本信息
@@ -77,7 +77,8 @@ export class IssueService {
 
     let toStatus: IssueStatus;
     try {
-      toStatus = getNextIssueStatus(fromStatus, action);
+      const next = IssueDomain.nextStatus(fromStatus, action);
+      toStatus = next;
     } catch (e) {
       const err = e as Error;
       throw new BadRequestException(err.message);
