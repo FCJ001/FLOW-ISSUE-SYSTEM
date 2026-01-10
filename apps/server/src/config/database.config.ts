@@ -1,19 +1,27 @@
-import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
+import { registerAs } from '@nestjs/config';
+import { IsInt, IsString } from 'class-validator';
 
-export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
-  inject: [ConfigService],
-  useFactory: (config: ConfigService) => ({
-    type: 'mysql',
-    host: config.get<string>('DB_HOST'),
-    port: Number(config.get('DB_PORT')),
-    username: config.get<string>('DB_USER'),
-    password: config.get<string>('DB_PASSWORD'),
-    database: config.get<string>('DB_NAME'),
+export class DatabaseEnv {
+  @IsString()
+  DB_HOST!: string;
 
-    autoLoadEntities: true,
+  @IsInt()
+  DB_PORT!: number;
 
-    // ⚠️ 强烈建议：从现在开始关掉
-    synchronize: false,
-  }),
-};
+  @IsString()
+  DB_USER!: string;
+
+  @IsString()
+  DB_PASSWORD!: string;
+
+  @IsString()
+  DB_NAME!: string;
+}
+
+export default registerAs('database', () => ({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+}));
