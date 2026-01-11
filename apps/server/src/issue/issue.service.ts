@@ -1,6 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { IssueAction, IssueStatus } from '@flow/shared';
 import { DataSource } from 'typeorm';
 
@@ -9,7 +13,7 @@ import { IssueActionLogService } from '../issue-action-log/issue-action-log.serv
 import { IssueEntity } from './issue.entity';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
-import { IssueDomain } from './issue.domain.js';
+import { IssueDomain } from './issue.domain';
 
 /**
  * 哪些状态允许编辑 Issue 基本信息
@@ -38,7 +42,7 @@ export class IssueService {
       title: dto.title,
       description: dto.description,
       status: IssueStatus.DRAFT,
-    });
+    } as DeepPartial<IssueEntity>);
 
     return this.issueRepo.save(issue);
   }
@@ -74,15 +78,20 @@ export class IssueService {
     action: IssueAction,
     operator?: string,
   ): Promise<IssueEntity> {
-    return this.dataSource.transaction(async (manager) => {
-      const issueRepo = manager.getRepository(IssueEntity);
+    return this.dataSource.transaction(async (manager: EntityManager) => {
+      const issue = await manager
+        .getRepository(IssueEntity)
+        .createQueryBuilder('issue')
+        .setLock('pessimistic_write')
+        .where('issue.id = :id', { id })
+        .getOne();
 
-      // 1️⃣ 查询（行锁可选）
-      const issue = await issueRepo.findOneByOrFail({ id });
+      if (!issue) {
+        throw new NotFoundException(`Issue ${id} not found`);
+      }
 
       const fromStatus = issue.status;
 
-      // 2️⃣ Domain 校验 + 状态流转
       let toStatus: IssueStatus;
       try {
         toStatus = IssueDomain.nextStatus(fromStatus, action);
@@ -90,11 +99,9 @@ export class IssueService {
         throw new BadRequestException((e as Error).message);
       }
 
-      // 3️⃣ 更新 Issue
       issue.status = toStatus;
-      await issueRepo.save(issue);
+      await manager.save(issue);
 
-      // 4️⃣ 写操作日志（必须使用同一个事务）
       await this.actionLogService.record(
         {
           issueId: issue.id,
@@ -103,7 +110,7 @@ export class IssueService {
           toStatus,
           operator,
         },
-        manager, // ⭐ 把 manager 传下去
+        manager,
       );
 
       return issue;
