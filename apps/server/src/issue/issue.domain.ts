@@ -1,5 +1,4 @@
 // src/issue/issue.domain.ts
-
 import { BadRequestException } from '@nestjs/common';
 import { IssueAction, IssueStatus } from '@flow/shared';
 
@@ -28,6 +27,9 @@ export class IssueDomain {
     [IssueStatus.CLOSED]: {},
   };
 
+  /**
+   * 状态流转（写模型）
+   */
   static nextStatus(current: IssueStatus, action: IssueAction): IssueStatus {
     const next = this.STATE_MACHINE[current]?.[action];
 
@@ -36,5 +38,12 @@ export class IssueDomain {
     }
 
     return next;
+  }
+
+  /**
+   * 当前状态下允许的操作（读模型）
+   */
+  static getAvailableActions(status: IssueStatus): IssueAction[] {
+    return Object.keys(this.STATE_MACHINE[status] ?? {}) as IssueAction[];
   }
 }

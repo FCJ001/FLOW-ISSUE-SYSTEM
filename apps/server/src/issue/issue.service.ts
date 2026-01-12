@@ -14,6 +14,7 @@ import { IssueEntity } from './issue.entity';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { IssueDomain } from './issue.domain';
+import { QueryIssueDto } from './dto/query-issue.dto';
 
 /**
  * 哪些状态允许编辑 Issue 基本信息
@@ -115,5 +116,51 @@ export class IssueService {
 
       return issue;
     });
+  }
+
+  async findList(query: QueryIssueDto) {
+    const {
+      page = 1,
+      pageSize = 10,
+      status,
+      keyword,
+      sortBy = 'createdAt',
+      order = 'DESC',
+    } = query;
+
+    const qb = this.issueRepo.createQueryBuilder('issue');
+
+    // 1️⃣ 状态过滤
+    if (status) {
+      qb.andWhere('issue.status = :status', { status });
+    }
+
+    // 2️⃣ 关键词搜索
+    if (keyword) {
+      qb.andWhere('(issue.title LIKE :kw OR issue.description LIKE :kw)', {
+        kw: `%${keyword}%`,
+      });
+    }
+
+    // 3️⃣ 排序
+    const safeOrder: 'ASC' | 'DESC' = order === 'ASC' ? 'ASC' : 'DESC';
+
+    qb.orderBy(`issue.${sortBy}`, safeOrder);
+
+    // 4️⃣ 分页
+    qb.skip((page - 1) * pageSize).take(pageSize);
+
+    const [list, total] = await qb.getManyAndCount();
+
+    return {
+      total,
+      list: list.map((issue) => ({
+        id: issue.id,
+        title: issue.title,
+        status: issue.status,
+        createdAt: issue.createdAt,
+        availableActions: IssueDomain.getAvailableActions(issue.status),
+      })),
+    };
   }
 }

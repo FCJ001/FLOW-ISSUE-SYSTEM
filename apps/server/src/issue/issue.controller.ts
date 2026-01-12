@@ -12,6 +12,7 @@ import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { ExecuteIssueActionDto } from './dto/issue-action.dto';
+import { QueryIssueDto } from './dto/query-issue.dto';
 
 @Controller('issues')
 export class IssueController {
@@ -38,5 +39,10 @@ export class IssueController {
     @Body() dto: ExecuteIssueActionDto,
   ) {
     return this.issueService.executeAction(id, dto.action);
+  }
+
+  @Post('search')
+  findList(@Body() dto: QueryIssueDto) {
+    return this.issueService.findList(dto);
   }
 }
