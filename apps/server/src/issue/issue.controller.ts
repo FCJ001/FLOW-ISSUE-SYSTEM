@@ -7,6 +7,8 @@ import {
   Post,
   ParseIntPipe,
 } from '@nestjs/common';
+import { Role } from '@flow/shared';
+import { Headers } from '@nestjs/common';
 
 import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -37,12 +39,13 @@ export class IssueController {
   executeAction(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ExecuteIssueActionDto,
+    @Headers('x-role') role: Role,
   ) {
-    return this.issueService.executeAction(id, dto.action);
+    return this.issueService.executeAction(id, dto.action, role);
   }
 
   @Post('search')
-  findList(@Body() dto: QueryIssueDto) {
-    return this.issueService.findList(dto);
+  findList(@Body() dto: QueryIssueDto, @Headers('x-role') role: Role) {
+    return this.issueService.findList(dto, role);
   }
 }

@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, EntityManager, Repository } from 'typeorm';
-import { IssueAction, IssueStatus } from '@flow/shared';
+import { DeepPartial, Repository } from 'typeorm';
+import { IssueAction, IssueStatus, Role } from '@flow/shared';
 import { DataSource } from 'typeorm';
 
 import { IssueActionLogService } from '../issue-action-log/issue-action-log.service';
@@ -77,9 +77,10 @@ export class IssueService {
   async executeAction(
     id: number,
     action: IssueAction,
+    role: Role,
     operator?: string,
   ): Promise<IssueEntity> {
-    return this.dataSource.transaction(async (manager: EntityManager) => {
+    return this.dataSource.transaction(async (manager) => {
       const issue = await manager
         .getRepository(IssueEntity)
         .createQueryBuilder('issue')
@@ -93,12 +94,7 @@ export class IssueService {
 
       const fromStatus = issue.status;
 
-      let toStatus: IssueStatus;
-      try {
-        toStatus = IssueDomain.nextStatus(fromStatus, action);
-      } catch (e) {
-        throw new BadRequestException((e as Error).message);
-      }
+      const toStatus = IssueDomain.nextStatus(fromStatus, action, role);
 
       issue.status = toStatus;
       await manager.save(issue);
@@ -118,7 +114,7 @@ export class IssueService {
     });
   }
 
-  async findList(query: QueryIssueDto) {
+  async findList(query: QueryIssueDto, role: Role) {
     const {
       page = 1,
       pageSize = 10,
@@ -142,10 +138,20 @@ export class IssueService {
       });
     }
 
-    // 3️⃣ 排序
+    // 3️⃣ 安全排序
+    const SORT_FIELD_MAP = {
+      createdAt: 'issue.createdAt',
+      updatedAt: 'issue.updatedAt',
+      title: 'issue.title',
+    } as const;
+
+    const sortColumn =
+      SORT_FIELD_MAP[sortBy as keyof typeof SORT_FIELD_MAP] ??
+      SORT_FIELD_MAP.createdAt;
+
     const safeOrder: 'ASC' | 'DESC' = order === 'ASC' ? 'ASC' : 'DESC';
 
-    qb.orderBy(`issue.${sortBy}`, safeOrder);
+    qb.orderBy(sortColumn, safeOrder);
 
     // 4️⃣ 分页
     qb.skip((page - 1) * pageSize).take(pageSize);
@@ -154,12 +160,14 @@ export class IssueService {
 
     return {
       total,
+      page,
+      pageSize,
       list: list.map((issue) => ({
         id: issue.id,
         title: issue.title,
         status: issue.status,
         createdAt: issue.createdAt,
-        availableActions: IssueDomain.getAvailableActions(issue.status),
+        availableActions: IssueDomain.getAvailableActions(issue.status, role),
       })),
     };
   }
