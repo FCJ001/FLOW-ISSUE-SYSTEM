@@ -48,5 +48,9 @@
     "**/*.{json,md,css,scss}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "antd": "^5.22.0",
+    "@ant-design/icons": "~5.6.1"
   }
 }

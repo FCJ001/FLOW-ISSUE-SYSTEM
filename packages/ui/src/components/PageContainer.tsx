@@ -1,17 +1,15 @@
-// packages/ui/src/components/PageContainer.tsx
-import { Card } from "antd";
-import type { ReactNode } from "react";
+import { Card } from 'antd';
+import type { CardProps } from 'antd';
+import type { ReactNode } from 'react';
 
 interface PageContainerProps {
-  title?: string;
+  title?: CardProps['title'];
   children: ReactNode;
 }
 
-export function PageContainer(props: PageContainerProps) {
-  const { title, children } = props;
-
+export function PageContainer({ title, children }: PageContainerProps) {
   return (
-    <Card title={title} style={{ minHeight: "100%" }}>
+    <Card title={title as CardProps['title']} style={{ minHeight: '100%' }}>
       {children}
     </Card>
   );

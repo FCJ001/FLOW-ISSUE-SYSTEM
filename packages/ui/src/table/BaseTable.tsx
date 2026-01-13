@@ -1,6 +1,5 @@
 import React from 'react';
 import { Table, Empty } from 'antd';
-import type { TablePaginationConfig } from 'antd/es/table';
 
 import { BaseColumn } from './types';
 
@@ -32,7 +31,15 @@ export function BaseTable<T>(props: BaseTableProps<T>) {
     render: col.render,
   }));
 
-  const paginationConfig: TablePaginationConfig | false = pagination
+  const paginationConfig:
+    | {
+        current: number;
+        total: number;
+        onChange: (page: number, pageSize: number) => void;
+        pageSize: number;
+        showSizeChanger: boolean;
+      }
+    | boolean = pagination
     ? {
         current: pagination.current,
         pageSize: pagination.pageSize,

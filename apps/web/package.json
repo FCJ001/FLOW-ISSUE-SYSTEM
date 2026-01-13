@@ -9,10 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "~5.6.1",
     "@flow/shared": "workspace:^",
     "@flow/ui": "workspace:*",
-    "antd": "^5.22.0",
     "axios": "^1.7.0",
     "react-router-dom": "^6.26.2"
   },
