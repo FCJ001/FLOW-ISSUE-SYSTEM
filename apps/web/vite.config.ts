@@ -2,21 +2,10 @@ import path from 'path';
 
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import federation from '@originjs/vite-plugin-federation';
 
 export default defineConfig({
-  base: '/FLOW-ISSUE-SYSTEM/',
-  plugins: [
-    react(),
-    federation({
-      name: 'webApp',
-      filename: 'remoteEntry.js',
-      exposes: {
-        './App': './src/App.tsx',
-      },
-      shared: ['react', 'react-dom'],
-    }),
-  ],
+  base: '/web',
+  plugins: [react()],
   server: {
     port: 5174,
   },

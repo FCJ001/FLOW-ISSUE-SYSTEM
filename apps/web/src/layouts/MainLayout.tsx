@@ -21,7 +21,7 @@ const MainLayout: React.FC = () => {
       label: 'Dashboard',
     },
     {
-      key: '/web/issues',
+      key: '/issues',
       icon: <ProfileOutlined />,
       label: 'Issues',
     },

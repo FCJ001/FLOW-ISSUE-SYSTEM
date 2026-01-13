@@ -7,10 +7,11 @@ import IssueDetailPage from '@/pages/issue/IssueDetailPage';
 import NotFound from '@/pages/NotFound';
 export const routes: RouteObject[] = [
   {
-    path: '/web',
+    path: '/',
     element: <MainLayout />,
     children: [
       {
+        path: '/dashboard',
         index: true,
         element: <Home />,
       },
