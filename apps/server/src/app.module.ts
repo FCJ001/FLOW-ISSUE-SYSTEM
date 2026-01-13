@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import databaseConfig from './config/database.config.js';
 import { IssueModule } from './issue/issue.module.js';
+import { AuthModule } from './auth/auth.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { IssueModule } from './issue/issue.module.js';
     }),
 
     IssueModule,
+    AuthModule,
+    RoleModule,
   ],
 })
 export class AppModule {}
