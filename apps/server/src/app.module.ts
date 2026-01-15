@@ -6,6 +6,7 @@ import databaseConfig from './config/database.config.js';
 import { IssueModule } from './issue/issue.module.js';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { RoleModule } from './role/role.module';
     IssueModule,
     AuthModule,
     RoleModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

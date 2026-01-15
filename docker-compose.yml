@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   mysql:
     image: mysql:8.0
@@ -12,5 +13,16 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  redis:
+    image: redis:7
+    container_name: flow-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
 volumes:
   mysql_data:
+  redis_data:

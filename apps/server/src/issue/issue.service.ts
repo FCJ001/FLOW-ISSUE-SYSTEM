@@ -9,6 +9,7 @@ import { IssueAction, IssueStatus, Role } from '@flow/shared';
 import { DataSource } from 'typeorm';
 
 import { IssueActionLogService } from '../issue-action-log/issue-action-log.service';
+import { RedisService } from '../redis/redis.service';
 
 import { IssueEntity } from './issue.entity';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -33,6 +34,8 @@ export class IssueService {
     private readonly actionLogService: IssueActionLogService,
 
     private readonly dataSource: DataSource,
+
+    private readonly redisService: RedisService,
   ) {}
 
   /**
@@ -80,38 +83,55 @@ export class IssueService {
     role: Role,
     operator?: string,
   ): Promise<IssueEntity> {
-    return this.dataSource.transaction(async (manager) => {
-      const issue = await manager
-        .getRepository(IssueEntity)
-        .createQueryBuilder('issue')
-        .setLock('pessimistic_write')
-        .where('issue.id = :id', { id })
-        .getOne();
+    const redis = this.redisService.getClient();
+    const key = `issue:action:${id}:${action}`;
 
-      if (!issue) {
-        throw new NotFoundException(`Issue ${id} not found`);
-      }
+    const result = await redis.multi().setnx(key, '1').expire(key, 10).exec();
 
-      const fromStatus = issue.status;
+    const setnxResult = result?.[0]?.[1];
 
-      const toStatus = IssueDomain.nextStatus(fromStatus, action, role);
+    if (setnxResult !== 1) {
+      throw new BadRequestException('请勿重复提交');
+    }
 
-      issue.status = toStatus;
-      await manager.save(issue);
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const issue = await manager
+          .getRepository(IssueEntity)
+          .createQueryBuilder('issue')
+          .setLock('pessimistic_write')
+          .where('issue.id = :id', { id })
+          .getOne();
 
-      await this.actionLogService.record(
-        {
-          issueId: issue.id,
-          action,
-          fromStatus,
-          toStatus,
-          operator,
-        },
-        manager,
-      );
+        if (!issue) {
+          throw new NotFoundException(`Issue ${id} not found`);
+        }
 
-      return issue;
-    });
+        const fromStatus = issue.status;
+
+        const toStatus = IssueDomain.nextStatus(fromStatus, action, role);
+
+        issue.status = toStatus;
+        await manager.save(issue);
+
+        await this.actionLogService.record(
+          {
+            issueId: issue.id,
+            action,
+            fromStatus,
+            toStatus,
+            operator,
+          },
+          manager,
+        );
+
+        return issue;
+      });
+    } catch (err) {
+      // ❗️失败时释放幂等锁
+      await redis.del(key);
+      throw err;
+    }
   }
 
   async findList(query: QueryIssueDto, role: Role) {
