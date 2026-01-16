@@ -80,7 +80,7 @@ export class IssueService {
   async executeAction(
     id: number,
     action: IssueAction,
-    role: Role,
+    roles: Role[],
     operator?: string,
   ): Promise<IssueEntity> {
     const redis = this.redisService.getClient();
@@ -109,7 +109,7 @@ export class IssueService {
 
         const fromStatus = issue.status;
 
-        const toStatus = IssueDomain.nextStatus(fromStatus, action, role);
+        const toStatus = IssueDomain.nextStatus(fromStatus, action, roles);
 
         issue.status = toStatus;
         await manager.save(issue);

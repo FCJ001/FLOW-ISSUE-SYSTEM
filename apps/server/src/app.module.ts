@@ -7,6 +7,7 @@ import { IssueModule } from './issue/issue.module.js';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { RedisModule } from './redis/redis.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { RedisModule } from './redis/redis.module';
     AuthModule,
     RoleModule,
     RedisModule,
+    UserModule,
   ],
 })
 export class AppModule {}

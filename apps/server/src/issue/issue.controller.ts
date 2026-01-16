@@ -6,9 +6,13 @@ import {
   Patch,
   Post,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { Role } from '@flow/shared';
 import { Headers } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -35,13 +39,19 @@ export class IssueController {
     return this.issueService.update(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':id/actions')
   executeAction(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ExecuteIssueActionDto,
-    @Headers('x-role') role: Role,
+    @CurrentUser() user: any,
   ) {
-    return this.issueService.executeAction(id, dto.action, role);
+    return this.issueService.executeAction(
+      id,
+      dto.action,
+      user.roles,
+      user.id.toString(),
+    );
   }
 
   @Post('search')
