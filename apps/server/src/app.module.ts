@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { UserModule } from './user/user.module';
     RoleModule,
     RedisModule,
     UserModule,
+    PermissionModule,
   ],
 })
 export class AppModule {}

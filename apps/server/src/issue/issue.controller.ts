@@ -8,11 +8,10 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { Role } from '@flow/shared';
-import { Headers } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { PermissionGuard } from '../auth/permission.guard';
 
 import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -39,23 +38,19 @@ export class IssueController {
     return this.issueService.update(id, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PermissionGuard)
   @Post(':id/actions')
   executeAction(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ExecuteIssueActionDto,
     @CurrentUser() user: any,
   ) {
-    return this.issueService.executeAction(
-      id,
-      dto.action,
-      user.roles,
-      user.id.toString(),
-    );
+    return this.issueService.executeAction(id, dto.action, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('search')
-  findList(@Body() dto: QueryIssueDto, @Headers('x-role') role: Role) {
-    return this.issueService.findList(dto, role);
+  findList(@Body() dto: QueryIssueDto, @CurrentUser() user: any) {
+    return this.issueService.findList(dto, user);
   }
 }

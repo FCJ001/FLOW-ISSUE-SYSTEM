@@ -88,7 +88,7 @@ export class AuthService {
   async validateUser(userId: number) {
     return this.userRepo.findOne({
       where: { id: userId },
-      relations: ['roles'],
+      relations: ['roles', 'roles.permissions'],
     });
   }
 }

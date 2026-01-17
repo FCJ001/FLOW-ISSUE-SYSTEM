@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
-import { IssueAction, IssueStatus, Role } from '@flow/shared';
+import { IssueAction, IssueStatus } from '@flow/shared';
 import { DataSource } from 'typeorm';
 
 import { IssueActionLogService } from '../issue-action-log/issue-action-log.service';
@@ -80,8 +80,7 @@ export class IssueService {
   async executeAction(
     id: number,
     action: IssueAction,
-    roles: Role[],
-    operator?: string,
+    user: any, // 直接传完整 user 对象
   ): Promise<IssueEntity> {
     const redis = this.redisService.getClient();
     const key = `issue:action:${id}:${action}`;
@@ -109,7 +108,17 @@ export class IssueService {
 
         const fromStatus = issue.status;
 
-        const toStatus = IssueDomain.nextStatus(fromStatus, action, roles);
+        // ⭐ 从 user 中提取真实权限
+        const permissions: string[] =
+          user.roles?.flatMap((r: any) =>
+            r.permissions?.map((p: any) => p.code),
+          ) || [];
+
+        const toStatus = IssueDomain.nextStatus(
+          fromStatus,
+          action,
+          permissions,
+        );
 
         issue.status = toStatus;
         await manager.save(issue);
@@ -120,7 +129,7 @@ export class IssueService {
             action,
             fromStatus,
             toStatus,
-            operator,
+            operator: user.id.toString(),
           },
           manager,
         );
@@ -128,13 +137,12 @@ export class IssueService {
         return issue;
       });
     } catch (err) {
-      // ❗️失败时释放幂等锁
       await redis.del(key);
       throw err;
     }
   }
 
-  async findList(query: QueryIssueDto, role: Role) {
+  async findList(query: QueryIssueDto, user: any) {
     const {
       page = 1,
       pageSize = 10,
@@ -146,19 +154,16 @@ export class IssueService {
 
     const qb = this.issueRepo.createQueryBuilder('issue');
 
-    // 1️⃣ 状态过滤
     if (status) {
       qb.andWhere('issue.status = :status', { status });
     }
 
-    // 2️⃣ 关键词搜索
     if (keyword) {
       qb.andWhere('(issue.title LIKE :kw OR issue.description LIKE :kw)', {
         kw: `%${keyword}%`,
       });
     }
 
-    // 3️⃣ 安全排序
     const SORT_FIELD_MAP = {
       createdAt: 'issue.createdAt',
       updatedAt: 'issue.updatedAt',
@@ -173,10 +178,14 @@ export class IssueService {
 
     qb.orderBy(sortColumn, safeOrder);
 
-    // 4️⃣ 分页
     qb.skip((page - 1) * pageSize).take(pageSize);
 
     const [list, total] = await qb.getManyAndCount();
+
+    // ⭐ 从 user 中提取真实权限
+    const permissions: string[] =
+      user.roles?.flatMap((r: any) => r.permissions?.map((p: any) => p.code)) ||
+      [];
 
     return {
       total,
@@ -187,7 +196,10 @@ export class IssueService {
         title: issue.title,
         status: issue.status,
         createdAt: issue.createdAt,
-        availableActions: IssueDomain.getAvailableActions(issue.status, role),
+        availableActions: IssueDomain.getAvailableActions(
+          issue.status,
+          permissions,
+        ),
       })),
     };
   }
