@@ -9,6 +9,7 @@ import { RoleModule } from './role/role.module';
 import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
+import { IssueActionLogModule } from './issue-action-log/issue-action-log.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { PermissionModule } from './permission/permission.module';
     RedisModule,
     UserModule,
     PermissionModule,
+    IssueActionLogModule,
   ],
 })
 export class AppModule {}

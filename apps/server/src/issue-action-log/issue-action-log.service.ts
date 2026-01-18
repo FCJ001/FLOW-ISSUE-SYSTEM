@@ -4,6 +4,7 @@ import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { IssueAction, IssueStatus } from '@flow/shared';
 
 import { IssueActionLogEntity } from './issue-action-log.entity';
+import { QueryActionLogDto } from './dto/query-action-log.dto';
 
 @Injectable()
 export class IssueActionLogService {
@@ -31,10 +32,35 @@ export class IssueActionLogService {
     await repo.save(log);
   }
 
-  async findByIssue(issueId: number) {
-    return this.logRepo.find({
-      where: { issueId },
-      order: { createdAt: 'ASC' },
-    });
+  async findLogsByIssue(issueId: number, query: QueryActionLogDto) {
+    const { page = 1, pageSize = 10, action } = query;
+
+    const qb = this.logRepo.createQueryBuilder('log');
+
+    qb.where('log.issueId = :issueId', { issueId });
+
+    if (action) {
+      qb.andWhere('log.action = :action', { action });
+    }
+
+    qb.orderBy('log.createdAt', 'DESC');
+
+    qb.skip((page - 1) * pageSize).take(pageSize);
+
+    const [list, total] = await qb.getManyAndCount();
+
+    return {
+      total,
+      page,
+      pageSize,
+      list: list.map((log) => ({
+        id: log.id,
+        action: log.action,
+        fromStatus: log.fromStatus,
+        toStatus: log.toStatus,
+        operator: log.operator,
+        createdAt: log.createdAt,
+      })),
+    };
   }
 }
