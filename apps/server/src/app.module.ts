@@ -42,7 +42,7 @@ import { IssueActionLogModule } from './issue-action-log/issue-action-log.module
           password: db.password,
           database: db.database,
           autoLoadEntities: true,
-          synchronize: process.env.NODE_ENV !== 'production',
+          synchronize: true,
         };
       },
     }),

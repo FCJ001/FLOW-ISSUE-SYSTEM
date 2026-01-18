@@ -24,8 +24,9 @@ export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
   @Post()
-  create(@Body() dto: CreateIssueDto) {
-    return this.issueService.create(dto);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() dto: CreateIssueDto, @CurrentUser() user: any) {
+    return this.issueService.create(dto, user);
   }
 
   @Get(':id')

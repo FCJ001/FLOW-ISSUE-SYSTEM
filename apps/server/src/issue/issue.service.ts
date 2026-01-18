@@ -10,6 +10,7 @@ import { DataSource } from 'typeorm';
 
 import { IssueActionLogService } from '../issue-action-log/issue-action-log.service';
 import { RedisService } from '../redis/redis.service';
+import { IssueActionLogEntity } from '../issue-action-log/issue-action-log.entity';
 
 import { IssueEntity } from './issue.entity';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -36,16 +37,26 @@ export class IssueService {
     private readonly dataSource: DataSource,
 
     private readonly redisService: RedisService,
+
+    @InjectRepository(IssueActionLogEntity)
+    private readonly logRepo: Repository<IssueActionLogEntity>,
   ) {}
 
   /**
    * 创建 Issue（只能是 DRAFT）
    */
-  async create(dto: CreateIssueDto): Promise<IssueEntity> {
+  async create(dto: CreateIssueDto, user: any) {
     const issue = this.issueRepo.create({
-      title: dto.title,
-      description: dto.description,
-      status: IssueStatus.DRAFT,
+      ...dto,
+
+      creatorId: user.id,
+
+      status: 'DRAFT',
+      stage: 'INIT',
+
+      lastAction: 'CREATE',
+
+      overdue: false,
     } as DeepPartial<IssueEntity>);
 
     return this.issueRepo.save(issue);
